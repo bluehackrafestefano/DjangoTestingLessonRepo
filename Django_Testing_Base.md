@@ -10,17 +10,13 @@ Django Testing
 - virtualenv
 - selenium
 - firefox browser (manually install) 
-- geckodriver for firefox (install, unzip) 
-- chrome browser (Optional)
-- chromedriver for chrome (install, unzip)(Optinonal)
+- geckodriver for firefox (install, unzip)
 
 ### Summary
 
 - Django Testing
-- Create project
-  - Secure your project
+- Spin up project
 - Testing Example
-- Create app
 - Hashing
 - Functional test
   - Test homepage
@@ -47,7 +43,7 @@ Django Testing
 
 ### Django Testing
 
-https://docs.djangoproject.com/en/3.2/topics/testing/
+[Testing in Django](https://docs.djangoproject.com/en/4.0/topics/testing/)
 
 Automated testing is an extremely useful bug-killing tool for the modern Web developer. You can use a collection of tests – a test suite – to solve, or avoid, a number of problems:
 
@@ -68,12 +64,13 @@ https://www.selenium.dev/selenium-ide/
 To dive deep into selenium testing wiht python:
 https://selenium-python.readthedocs.io/getting-started.html
 
-# Create project
-- Shorten your powershell terminal prompt:
+# Spin up project
+- (Optional) Shorten your powershell terminal prompt:
 ```sh
 Function Prompt { "MyCode: " }
 ```
 - Create a working directory, name it as you wish, cd to new directory
+- Pull the latest changes from repo, copy materials, paste them to your newly created folder, or directly work on repo folder
 - Create virtual environment as a best practice:
 ```py
 python3 -m venv env # for Windows or
@@ -87,14 +84,28 @@ virtualenv env -p python3 # for Mac/Linux
 source env/bin/activate  # for MAC/Linux
 ```
 - See the (env) sign before your command prompt.
-- Install django:
+- Install dependencies:
 ```bash
-pip install django
+pip install -r requirements.txt
 ```
-- Install selenium
+- Check your project if it's installed correctly:
 ```py
-pip install selenium
+python manage.py runserver
+py -m manage.py runserver
 ```
+- Create .env file on root directory. We will collect our variables in this file.
+```py
+SECRET_KEY = o5o9...
+```
+- Migrate dbs:
+```py
+python manage.py migrate
+```
+- Create super user:
+```
+python manage.py createsuperuser
+```
+- Ready to go!
 
 ### Drivers
 
@@ -132,6 +143,9 @@ https://github.com/mozilla/geckodriver/releases
 - Unzip downloaded file,
 - Put geckodriver.exe inside /env/bin/ for mac, linux or /env/Sripts/ for windows.
 
+
+## Testing Example
+
 - Write your first test, name it test.py on your working directory:
 ```py
 from selenium import webdriver
@@ -142,98 +156,13 @@ browser.get('http://localhost:8000')
 
 assert browser.page_source.find("install")
 ```
-- Run test
-```py
-python test.py
-```
-- See its failing and we need a running django project
-- See installed packages:
-```sh
-pip freeze
-
-# you will see:
-asgiref==3.4.1
-Django==3.2.6
-pytz==2021.1
-selenium==3.141.0
-sqlparse==0.4.1
-urllib3==1.26.6
-
-# If you see lots of things here, that means there is a problem with your virtual env activation. 
-# Activate scripts again
-```
-- Create requirements.txt same level with working directory, send your installed packages to this file, requirements file must be up to date:
-```py
-pip freeze > requirements.txt
-```
-
-- Create project:
-```py
-django-admin startproject testing . 
-# With . it creates a single project folder.
-# Avoiding nested folders
-```
-- Various files has been created!
-- Check your project if it's installed correctly:
-```py
-python manage.py runserver
-py -m manage.py runserver
-```
-
-# Secure your project (Optional)
-
-### .gitignore
-
-Add standard .gitignore file to the project root directory. 
-
-Do that before adding your files to staging area, else you will need extra work to unstage files to be able to ignore them.
-
-### python-decouple
-
-- To use python decouple in this project, first install it:
-```py
-pip install python-decouple
-```
-- For more information: https://pypi.org/project/python-decouple/
-- Import the config object on settings.py file:
-```py
-from decouple import config
-```
-- Create .env file on root directory. We will collect our variables in this file.
-```py
-SECRET_KEY = o5o9...
-```
-- Retrieve the configuration parameters in settings.py:
-```py
-SECRET_KEY = config('SECRET_KEY')
-```
-- Now you can send you project to the github, but be sure you added a .gitignore file which has .env on it.
-
-- Add decouple to requirements list, do that every time you install something to your env.
-```py
-pip freeze > requirements.txt
-```
-
-## Testing Example
-
-- After creating the project run the test again. Use second terminal, we need the server up and running
-- Run the test again:
+- After creating the project run the test. Use second terminal, we need the server up and running
+- Run the test:
 ```py
 python test.py
 ```
 - If no error message is shown on the terminal it means everything is ok.
 - But we want to see some info message about the test result as feedback.
-
-# Create app
-
-- Start app
-```py
-python manage.py startapp hashing
-```
-- Go to settings.py and add the app to the INSTALLED_APPS:
-```py
-'hashing'
-```
 - See the section of tests.py
 - Copy our existig test to here.
 
@@ -257,13 +186,24 @@ class FunctionalTestCase(TestCase):
     # This is the test case method. The test case method should always start with characters test.
     def test_there_is_homepage(self):
         self.browser.get('http://localhost:8000')
-        self.assertIn('install',self.browser.page_source)
+        self.assertIn('Enter Hash Here',self.browser.page_source)
 
     # After the test run
     # The tearDown method will get called after every test method. This is a place to do all cleanup actions. In the current method, the browser window is closed. You can also call quit method instead of close. The quit will exit the entire browser, whereas close will close a tab, but if it is the only tab opened, by default most browser will exit entirely.
     def tearDown(self):
         self.browser.quit()
 ```
+- There are other use cases of setUp function:
+```py
+# You can create a user object to use in your tests!
+def setUp(self): 
+       User.objects.create_user('homer', 'ho...@simpson.net', 'simpson')
+
+# And later you can create a login test:
+login = self.client.login(username='homer', password='simpson') 
+    self.assertTrue(login)
+```
+
 - Time to test!
 
 The default startapp template creates a tests.py file in the new application. This might be fine if you only have a few tests, but as your test suite grows you’ll likely want to restructure it into a tests package so you can split your tests into different submodules such as test_models.py, test_views.py, test_forms.py, etc. Feel free to pick whatever organizational scheme you like.
@@ -288,12 +228,13 @@ $ ./manage.py test animals.tests.AnimalTestCase.test_animals_can_speak
 ```py
 python manage.py test
 ```
+- Get rid of the previous test.py to avoid webpages left opened.
 
 ### class TestCase
 
 This is the most common class to use for writing tests in Django. If your Django application doesn’t use a database, use SimpleTestCase.
 
-More information about [Provided test case classes](https://docs.djangoproject.com/en/3.2/topics/testing/tools/#provided-test-case-classes)
+More information about [Provided test case classes](https://docs.djangoproject.com/en/4.0/topics/testing/tools/#provided-test-case-classes)
 
 ## Hashing
 
@@ -332,6 +273,7 @@ class FunctionalTestCase(TestCase):
         # Find the element with id "text"
         text = self.browser.find_element_by_id("id_text")
         # Simulate user types "hello"
+        # send_keys method is used to send text to any field, such as input field of a form or even to anchor tag paragraph, etc. It replaces its contents on the webpage in your browser.
         text.send_keys("hello")
         # Simulate click to the submit button
         self.browser.find_element_by_name("submit").click()
@@ -344,9 +286,11 @@ class FunctionalTestCase(TestCase):
 ```
 - Run the test again
 ```py
-python manage.py test
+# By default verbose level is 1, you can increase it 2 or 3
+python manage.py test -v 2
+# Lastly look at the durations
 ```
-- One fail and one error
+- Good to see ok's
 
 # Write Unit Tests
 
@@ -391,66 +335,21 @@ class UnitTestCase(TestCase):
         # Search for home.html
         self.assertTemplateUsed(response, 'hashing/home.html')
 ```
-- Run the test again
+- The test ```client``` is a Python class that acts as a dummy web browser, allowing you to test your views and interact with your Django-powered application programmatically.
+[The test client](https://docs.djangoproject.com/en/4.0/topics/testing/tools/#the-test-client)
+- The test client does not require the web server to be running.
+- When retrieving pages, remember to specify the path of the URL, not the whole domain.
+
+- Run the test
 ```py
 python manage.py test
 ```
-- This will be quick, no openning browser
-
-- Now its time to make these tests passing
-
-### Create url of project
-
-- Go to the urls.py on project, add a new path
-```py
-from django.contrib import admin
-from django.urls import path, include
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('hashing.urls')),
-]
-```
-
-### Create url of app
-
-- Create urls.py on app
-```py
-from django.urls import path
-from .views import home
-
-urlpatterns = [
-    path('', home, name='home'),
-]
-```
-
-### Create View
-
-- Go to views.py in app
-- Create home view by adding:
-```py
-from django.shortcuts import render
-
-def home(request):    
-    return render(request, "hashing/home.html")
-
-```
-
-### Create an HTML template
-
-- Create hashing/templates/hashing directory and create a home.html file under it:
-```html
-<h1>This is the home page!</h1>
-```
-
-- Run the test again
-```py
-python manage.py test
-```
-- Ok, we have the test passing.
+- This will be quick, does not open browser
 
 
 ## Test the form
+
+- Review the form
 
 ```py
 from django.test import TestCase
@@ -499,7 +398,7 @@ class UnitTestCase(TestCase):
         self.assertTrue(form.is_valid())
 ```
 - Don't forget to import HashForm from forms.py in test.py.
-- Run the test again
+- Run the test
 ```py
 python manage.py test
 ```
@@ -509,60 +408,14 @@ how to test if there is a form in django
 ```
 and look for the results, especially results with stackoverflow!
 
-- Have an error as we expected
-
-### Create form
-
-- Create forms.py under app
-
-```py
-from django import forms
-
-class HashForm(forms.Form):
-    # Using Textarea because some people enters lots of things here, like a paragraph
-    text = forms.CharField(label='Enter hash here:', widget=forms.Textarea)
-```
-- Add our form to the views to put it in the template
-- Go to the views.py
-```py
-from django.shortcuts import render
-from .forms import HashForm
-
-def home(request):
-    form = HashForm()
-    context = {
-        'form': form
-    }  
-    return render(request, "hashing/home.html", context)
-```
-- Update template to show our form
-- Go to home.html
-```html
-<h1>This is the home page!</h1>
-
-<form action="{% url 'home' %}" method="post">
-
-    {% csrf_token %}
-
-    {{ form.as_p }}
-
-    <input name="submit" type="submit" value="Hash">
-
-</form>
-```
-
-- Run the test again
-```py
-python manage.py test
-```
-- Passed two tests!
-
 ## Test for Assertions
 
-- Using django test, we can create assertions to check our result to the correct output. This will ensure our result is true.
+- The TestCase class provides several assert methods to check for and report failures.
 
 - For more info about assertions on django:
-https://docs.djangoproject.com/en/3.2/topics/testing/tools/#assertions
+[Assertions](https://docs.djangoproject.com/en/4.0/topics/testing/tools/#assertions)
+
+- [The list of the most commonly used assert methods in python](https://docs.python.org/3/library/unittest.html#unittest.TestCase.debug)
 
 - Now add a test for assertion for the word 'hello' and the equivelent hash. Go to tests.py:
 ```py
@@ -579,47 +432,14 @@ def test_hash_func_works(self):
         self.assertEqual('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824', text_hash)
         # No need to write extra code for that, because it checks the library of hashlib only.
 ```
-- Run the test again
+- Run the test
 ```py
 python manage.py test
 ```
-- Passed two tests!
 
 ### Test Models & Databases
 
-- Let's create a database testing. Assume that users can save their hashes to share/use later on. First need to create a model:
-
-```py
-from django.db import models
-
-class Hash(models.Model):
-    text = models.TextField()
-    # hash is exactly 64 char long!
-    hash = models.CharField(max_length=64)
-```
-
-- Need to migrate, after make any change on models
-```py
-python manage.py makemigrations
-# See model Hash is being created
-
-# Send model change to the admin dashboard
-python manage.py migrate
-```
-- To pass this model to admin page, go to admin.py and add:
-```py
-from hashing.models import Hash
-from django.contrib import admin
-
-admin.site.register(Hash)
-```
-- And modify the model to see better name:
-```py
-    def __str__(self) -> str:
-        return self.text + ' ' + self.hash 
-```
-
-- Now we have a model, time to test it
+- We have a model, time to test it
 - Turn back to the tests.py
 ```py
 from .models import Hash
@@ -648,44 +468,11 @@ def test_hash_object(self):
 ```
 - In this way, anytime we initialize a test on db, django will create a test db and destroy it after test.
 
-### Saving Model
-
-- User will pass us some information using form, so go to the views.py and add the model to our view:
-```py
-from .models import Hash
-import hashlib
-
-def home(request):
-    if request.method == 'POST':
-        filled_form = HashForm(request.POST)
-        if filled_form.is_valid():
-            text = filled_form.cleaned_data['text']
-            text_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()
-            try:
-                # If this object already exists, no need to save it again
-                Hash.objects.get(hash=text_hash)
-            # If there is no object for the text, need to create an object:
-            except Hash.DoesNotExist:
-                hash = Hash()
-                hash.text = text
-                hash.hash = text_hash
-                hash.save()
-    form = HashForm()
-    context = {
-        'form': form
-    }
-    return render(request, 'hashing/home.html', context)
-```
-- Run the test again
-```py
-python manage.py test
-```
-- Write some text on home page and check admin panel if it is saved!
 
 ### Test the ability to see a hash on the page
-When user enters a text to see the corresponding hash, the page will be redirected to a new one to show the hash. We didn't created this yet.
+When user enters a text to see the corresponding hash, the page will be redirected to a new one to show the hash.
 
-- First write the test:
+- Lets write the test:
 ```py
     def test_viewing_hash(self):
         # Inherit from Hash form:
@@ -700,69 +487,26 @@ When user enters a text to see the corresponding hash, the page will be redirect
         response = self.client.get('/hash/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
         self.assertContains(response,'hello')
 ```
-- You can update your code combining occurrencies of saveHash(Optional):
+- (Optional) You can update your code combining occurrencies of saveHash(Optional):
 ```py
 def saveHash(self):
-        hash = Hash()
-        hash.text = 'hello'
-        hash.hash = '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
-        hash.save()
-        return hash
+    hash = Hash()
+    hash.text = 'hello'
+    hash.hash = '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
+    hash.save()
+    return hash
 
-    def test_hash_object(self):
-        hash = self.saveHash()
-        pulled_hash = Hash.objects.get(hash='2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
-        self.assertEqual(hash.text,pulled_hash.text)
+def test_hash_object(self):
+    hash = self.saveHash()
+    pulled_hash = Hash.objects.get(hash='2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
+    self.assertEqual(hash.text,pulled_hash.text)
 
-    def test_viewing_hash(self):
-        hash = self.saveHash()
-        response = self.client.get('/hash/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
-        self.assertContains(response,'hello')
+def test_viewing_hash(self):
+    hash = self.saveHash()
+    response = self.client.get('/hash/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
+    self.assertContains(response,'hello')
 ```
 - Run the test again
-```py
-python manage.py test
-```
-- It fails because we haven't modified our template yet.
-- Add the url to the list off app urls.py:
-
-```py
-from django.urls import path
-# Don't forget to import hash view:
-from .views import home, hash
-
-urlpatterns = [
-    path('', home, name='home'),
-    path('hash/<str:hash>', hash, name="hash"),
-]
-```
-- Next we need to create view:
-
-```py
-# This includes hash object also, which we defined in the url:
-def hash(request, hash):
-    hash = Hash.objects.get(hash=hash)
-    return render(request, 'hashing/hash.html', {'hash':hash})
-```
-- Add a redirect after the save() of home page. If someone send us a valid post request, we will redirect the user to the hash page after saving the value to the db! Don't forget to import redirect:
-
-```py
-from django.shortcuts import render, redirect
-
-return redirect('hash', hash=text_hash)
-```
-
-- Create hash.html
-
-```html
-<h2>Hash:</h2>
-<h1>{{ hash.hash }}</h1>
-<h2>Text:</h2>
-{{ hash.text }}
-<h3><a href="{% url 'home' %}">Home</a></h3>
-```
-- Run the test again
-
 ```py
 python manage.py test
 ```
@@ -774,95 +518,6 @@ python manage.py test
 ```py
 python manage.py test
 ```
-
-### User input with functional tests(Optional)
-
-- We need to test things going wrong. Let's test if we prowide a hash which is too long!
-
-```py
-from django.core.exceptions import ValidationError
-
-# Under unit tests add this test:
-def test_bad_data(self):
-        def badHash():
-            hash = Hash()
-            hash.hash = '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824ggggg'
-            hash.full_clean()
-        # We expect that will raise a validation error
-        self.assertRaises(ValidationError, badHash)
-```
-
-### Waiting, and ajax (Optional)
-
-Sometimes, we need to wait for some response. Let's add a functional test to explain this topic.
-```py
-import time
-
-def test_hash_ajax(self):
-        self.browser.get('http://localhost:8000')
-        self.browser.find_element_by_id('id_text').send_keys('hello')
-        time.sleep(2)
-        self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',self.browser.page_source)
-```
-- Add ajax, this is a new url, add urls.py under app:
-```py
-from .views import home, hash, quickhash
-
-path('quickhash', quickhash, name='quickhash'),
-```
-
-- Add new view:
-```py
-from django.http import JsonResponse
-
-def quickhash(request):
-    text = request.GET['text']
-    return JsonResponse({'hash':hashlib.sha256(text.encode('utf-8')).hexdigest()})
-```
-- Modify home page an add some css:
-```html
-<h2 id="quickhash"></h2>
-
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script>
-    $('#id_text').keyup(function () {
-      var text = $(this).val();
-
-
-      $.ajax({
-        url: '/quickhash',
-        data: {
-          'text': text
-        },
-        dataType: 'json',
-        success: function (data) {
-          $('#quickhash').text(data['hash']);
-        }
-      });
-
-
-    });
-  </script>
-```
-
-- Install jquerry googleapi:
-https://developers.google.com/speed/libraries
-
-- Copy:
-```
-jQuery
-3.x snippet:
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-```
-
-- Check the page if it shows quickhash.
-- Run the test again
-
-```py
-python manage.py test
-```
-- It passes!
 
 ## Deployment testing
 
@@ -883,9 +538,22 @@ python manage.py test
   - Wait until you have version 1.0
   - Create tests for those things you find crucial
 
+## Code Coverage: How do I know what to test?
+
+Use code coverage tool to see what to test, where to test, and if your tests enough to meet requirements.
+
+```py
+# Install the package in your Django project:
+pip install coverage
+# Run the tool inside the project folder:
+coverage run --omit='*/env/*' manage.py test
+# After the first pass you can get a coverage report with:
+coverage report
+# You can also generate an HTML report with (a new folder called htmlcov will appear inside the project root):
+coverage html
+```
+
 ## Next steps
 - Look at selenium recorder
-- Look at code coverage tools
 - Try tests on your own projects
-- Deploy you code
-- Learn deployment automation, ansible etc.
+- Shine on your interviews with your testing knowledge!
