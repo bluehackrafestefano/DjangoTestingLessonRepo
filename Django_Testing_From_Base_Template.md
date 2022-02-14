@@ -14,7 +14,7 @@ Django Testing
 
 ### Summary
 
-- Django Testing
+- Django Testing Overview
 - Spin up project
 - Testing Example
 - Hashing
@@ -31,6 +31,7 @@ Django Testing
 - Combine Unit tests with functional tests
 - Deployment testing
 - TDD vs. Testing After
+- Code Coverage
 - Next steps
 
 ### Functional and Unit Tests
@@ -58,11 +59,11 @@ Testing a Web application is a complex task, because a Web application is made o
 
 With Django’s test-execution framework and assorted utilities, you can simulate requests, insert test data, inspect your application’s output and generally verify your code is doing what it should be doing.
 
-An easy selenium functional test creation is possible, it's possible to record actions:
-https://www.selenium.dev/selenium-ide/
+An easy [selenium](https://www.selenium.dev/selenium-ide/) functional test creation is possible, it's possible to record actions.
 
-To dive deep into selenium testing wiht python:
-https://selenium-python.readthedocs.io/getting-started.html
+
+To dive deep into [selenium testing wiht python](https://selenium-python.readthedocs.io/getting-started.html)
+
 
 # Spin up project
 - (Optional) Shorten your powershell terminal prompt:
@@ -111,21 +112,19 @@ python manage.py createsuperuser
 
 Selenium requires a driver to interface with the chosen browser. Firefox, for example, requires geckodriver, which needs to be installed before the below examples can be run. Make sure it’s in your PATH, e. g., place it in /usr/bin or /usr/local/bin. In this example, we will use Firefox.
 
-- How to install Firefox:
-https://www.mozilla.org/en-US/firefox/new/
+- How to install [Firefox](https://www.mozilla.org/en-US/firefox/new/)
 
 Failure to observe this step will give you an error selenium.common.exceptions.WebDriverException: Message: ‘geckodriver’ executable needs to be in PATH.
 
 Other supported browsers will have their own drivers available. Links to some of the more popular browser drivers follow.
 
-- Chrome:	https://sites.google.com/a/chromium.org/chromedriver/downloads
-- Edge:	https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
-- Firefox:	https://github.com/mozilla/geckodriver/releases
-- Safari:	https://webkit.org/blog/6900/webdriver-support-in-safari-10/
+- [Chrome](https://sites.google.com/a/chromium.org/chromedriver/downloads)
+- [Edge](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/)
+- [Firefox](https://github.com/mozilla/geckodriver/releases)
+- [Safari](https://webkit.org/blog/6900/webdriver-support-in-safari-10/)
 
 (Optional)
-- Go to:
-https://sites.google.com/a/chromium.org/chromedriver/downloads
+- Go to [chromedriver webpage](https://sites.google.com/a/chromium.org/chromedriver/downloads)
 - How to check your version of Chrome:
   - On your computer, open Chrome.
   - At the top right, look at More.
@@ -136,8 +135,7 @@ https://sites.google.com/a/chromium.org/chromedriver/downloads
 - Put chromedriver.exe inside /env/bin/ for mac, linux or /env/Sripts/ for windows.
 
 ###  Install geckodriver
-- Go to:
-https://github.com/mozilla/geckodriver/releases
+- Go to [geckodriver webpage](https://github.com/mozilla/geckodriver/releases)
 - Scroll down,
 - Download suitable version,
 - Unzip downloaded file,
@@ -154,7 +152,7 @@ browser = webdriver.Firefox()
 # browser = webdriver.Chrome()
 browser.get('http://localhost:8000')
 
-assert browser.page_source.find("install")
+assert browser.page_source.find("Enter hash here")
 ```
 - After creating the project run the test. Use second terminal, we need the server up and running
 - Run the test:
@@ -209,7 +207,6 @@ login = self.client.login(username='homer', password='simpson')
 The default startapp template creates a tests.py file in the new application. This might be fine if you only have a few tests, but as your test suite grows you’ll likely want to restructure it into a tests package so you can split your tests into different submodules such as test_models.py, test_views.py, test_forms.py, etc. Feel free to pick whatever organizational scheme you like.
 
 Test discovery is based on the unittest module’s built-in test discovery. By default, this will discover tests in any file named “test*.py” under the current working directory.
-
 You can specify particular tests to run by supplying any number of “test labels” to ./manage.py test. Each test label can be a full Python dotted path to a package, module, TestCase subclass, or test method. For instance:
 ```
 # Run all the tests in the animals.tests module
