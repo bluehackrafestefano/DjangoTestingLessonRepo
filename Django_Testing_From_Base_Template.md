@@ -157,7 +157,7 @@ assert browser.page_source.find("Enter hash here")
 - After creating the project run the test. Use second terminal, we need the server up and running
 - Run the test:
 ```py
-python test.py
+python test.py  # Change file name if you name it differently
 ```
 - If no error message is shown on the terminal it means everything is ok.
 - But we want to see some info message about the test result as feedback.
